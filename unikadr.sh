@@ -110,10 +110,6 @@ echo -e "\e[92m"
 read -p "Press ENTER to start syncing"
 echo -e "\e[39m"
 
-# Clean some temporary files
-find . -name ".DS_Store" -delete
-find . -name "*.XMP" -delete
-
 # Delete CR2 files marked with the Photomechanic Magenta flag (button 1) based on XMP files
 for f in *; do
     if [[ -d ${f} ]]; then
@@ -124,7 +120,10 @@ for f in *; do
     fi
 done
 
-# Syncing
+# Clean some temporary files
+find . -name ".DS_Store" -delete
+find . -name "*.XMP" -delete
+
 errordirs=""
 okdirs=""
 
