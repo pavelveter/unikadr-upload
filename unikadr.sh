@@ -23,7 +23,7 @@ function GetRemouteDirs {
     rclone lsd ${yad}${photographer}/$1 | tr -s " " | cut -d " " -f 6
 }
 
-echo -e "\nUnikadr --> Yandex.Disk"
+echo -e "\nUnikadr --> Yandex.Disk [ $(cat $(dirname $0)/.git/HEAD | grep -o '[^/]*$') ]"
 
 # Check for the rclone and the Yandex.Disk config
 which rclone > /dev/null || ErrorExit "Can't find rclone. Install it from www.rclone.org."
