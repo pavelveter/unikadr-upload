@@ -68,7 +68,7 @@ done
 anyclass=`echo ${classesdirs} | cut -d " " -f1`
 backgrounddirs=`GetRemouteDirs ${school}/${anyclass}` || ErrorExit "Can't get backround directories."
 
-echo -e "\nSelect the type of the backgroud"
+echo -e "\n\nSelect the type of the backgroud"
 
 select background in ${backgrounddirs}; do
     if [[ -z ${background} ]]; then
@@ -107,7 +107,7 @@ for f in ${okdirs}; do
 done
 
 echo -e "\e[92m"
-read -p "Press ENTER to start syncing"
+read -p "Press ENTER to start deletening trash photoes"
 echo -e "\e[39m"
 
 # Delete CR2 files marked with the Photomechanic Magenta flag (button 1) based on XMP files
@@ -115,10 +115,14 @@ for f in *; do
     if [[ -d ${f} ]]; then
         for fn in ${f}/*.XMP; do
             grep 'photomechanic:ColorClass=\"1\"' ${fn} > /dev/null \
-                && rm ${fn%.*}.CR2;
+                && (echo "${fn%.*}.CR2 from ${fn} deleted"; rm ${fn%.*}.CR2)
         done
     fi
 done
+
+echo -e "\e[92m"
+read -p "Press ENTER to start syncing"
+echo -e "\e[39m"
 
 # Clean some temporary files
 find . -name ".DS_Store" -delete
