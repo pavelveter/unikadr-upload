@@ -115,10 +115,12 @@ for f in *; do
     if [[ -d ${f} ]]; then
         for fn in ${f}/*.XMP; do
             grep 'photomechanic:ColorClass=\"1\"' ${fn} > /dev/null \
-                && (echo "${fn%.*}.CR2 from ${fn} deleted"; rm ${fn%.*}.CR2)
+                && (printf "\e[91m(X)\e[0m ${fn%.*}.CR2 "; rm ${fn%.*}.CR2)
         done
     fi
 done
+
+printf "\n"
 
 echo -e "\e[92m"
 read -p "Press ENTER to start syncing"
