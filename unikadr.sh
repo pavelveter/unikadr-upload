@@ -35,6 +35,7 @@ ping -c 1 disk.yandex.ru > /dev/null || ErrorExit "Can't ping Yandex.Disk. Check
 schooldirs=`GetRemouteDirs .` || ErrorExit "Can't get remote school directories. Check photographer's path."
 
 echo -e "\nPlease, select the directory of the school"
+
 select school in ${schooldirs}; do
     if [[ -z ${school} ]]; then
         echo "You entered the wrong number, please, try again"
@@ -115,7 +116,7 @@ for f in *; do
     if [[ -d ${f} ]]; then
         for fn in ${f}/*.XMP; do
             grep 'photomechanic:ColorClass=\"1\"' ${fn} > /dev/null \
-                && (printf "\e[91m(X)\e[0m ${fn%.*}.CR2 "; rm ${fn%.*}.CR2)
+                && (printf "❌ ${fn%.*}.CR2  "; rm ${fn%.*}.CR2)
         done
     fi
 done
@@ -137,7 +138,7 @@ okdirs=""
 
 for f in *; do
     if [[ -d ${f} ]]; then
-        echo -e "\nSYNC: ${f} --> ${yad}${photographer}/${school}/${f}-/${background}" | tee rclone.lock
+        echo -e "\n\e[33mSYNC:\e[0m ${f} \e[34m-->\e[0m ${yad}${photographer}/${school}/${f}-/${background}" | tee rclone.lock
         rclone sync $f ${yad}${photographer}/${school}/${f}-/${background} --progress --transfers=20 \
             && okdirs+=${f}" " \
             || errordirs+=${f}" ";
@@ -149,7 +150,7 @@ rm rclone.lock
 echo -e " "
 
 if [[ ! -z ${okdirs} ]]; then
-    echo -e "\e[92mSynced sucsessfully: "${okdirs}"\e[39m"
+    echo -e "\e[92mSynced successfully: "${okdirs}"\e[39m"
 fi
 
 if [[ ! -z ${errordirs} ]]; then 
@@ -158,34 +159,39 @@ if [[ ! -z ${errordirs} ]]; then
 fi
 
 # Renaming
-errordirs=""
-okdirs=""
+renaming=true
 
-[[ -f rclone.lock ]] && ErrorExit "'rclone.lock' found. Probably we are access Yandex.Disk right now."
+if ${renaming}; then
+    errordirs=""
+    okdirs=""
 
-for f in *; do
-    if [[ -d ${f} ]]; then
-        echo -e "RENAME: ${yad}${photographer}/${school}/${f}- --> ${yad}${photographer}/${school}/${f}" | tee rclone.lock
-        rclone moveto ${yad}${photographer}/${school}/${f}- \
-                      ${yad}${photographer}/${school}/${f} --progress > /dev/null 2>&1 \
-            && okdirs+=${f}" " \
-            || errordirs+=${f}" ";
+    [[ -f rclone.lock ]] && ErrorExit "'rclone.lock' found. Probably we are access Yandex.Disk right now."
+
+    for f in *; do
+        if [[ -d ${f} ]]; then
+            echo -e "\e[33mRENAME:\e[0m ${yad}${photographer}/${school}/${f}- \e[34m-->\e[0m ${yad}${photographer}/${school}/${f}" | tee rclone.lock
+            rclone moveto ${yad}${photographer}/${school}/${f}- \
+                          ${yad}${photographer}/${school}/${f} --progress > /dev/null 2>&1 \
+                && okdirs+=${f}" " \
+                || errordirs+=${f}" ";
+        fi
+    done
+
+    rm rclone.lock
+
+    echo -e " "
+
+    if [[ ! -z ${okdirs} ]]; then
+        echo -e "\e[92mRenamed successfully: "${okdirs}"\e[39m"
     fi
-done
 
-rm rclone.lock
+    if [[ ! -z ${errordirs} ]]; then 
+        echo -e "\e[31mProblems have occurred with: "${errordirs}
+        ErrorExit "Bad news, but there were some issues while renaming the folders"
+    fi
 
-echo -e " "
-
-if [[ ! -z ${okdirs} ]]; then
-    echo -e "\e[92mRenamed sucsessfully: "${okdirs}"\e[39m"
+    echo " "
+    say -v Samantha Renaming is complete. >/dev/null 2>&1 &
 fi
 
-if [[ ! -z ${errordirs} ]]; then 
-    echo -e "\e[31mProblems have occurred with: "${errordirs}
-    ErrorExit "Bad news, but there were some issues while renaming the folders"
-fi
-
-echo " "
-say -v Samantha Renaming is complete. >/dev/null 2>&1 &
 echo -e "That's all folks. Scripted by instagram.com/pavelveter\n"

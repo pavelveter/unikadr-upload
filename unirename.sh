@@ -9,7 +9,6 @@ echo -e "\nUnikadr Folder Renamer\n"
 dir_num=`ls -1 | grep EOS5D | wc -l | tr -d ' '`
 class_names_num=0
 
-
 while [[ ! ${class_names_num} == ${dir_num} ]]; do
     echo Enter ${dir_num} class names, separated by space: 
     read class_names
