@@ -1,84 +1,33 @@
 #!/usr/bin/env bash
 #
-# В Photomechanic
-#  * 2 (красный) — виньетки
-#  * 3 (оранжевый) — педагоги
+# Sorting files according to their PictureStyles setting
 
 set -o errexit
 set -o nounset
 set -o pipefail
 
 readonly ext=CR2
-readonly ped=ped
-readonly all=all
+
+declare -A StyleDirs
+StyleDirs=( ["Standard"]="4_green" ["Monochrome"]="4_bw" ["Portrait"]="4_green_wood" )
 
 echo -e "\nUnikadr Sorter\n"
-
-currdir=$(pwd | grep -o '[^/]*$')
+which exiftool > /dev/null || (echo -e "Can't find exiftool. Install it from www.exiftool.org.\n"; exit 1)
 
 for dir in *; do
+    # Creating directories
+    for newdir in "${StyleDirs[@]}"; do
+        [[ ! -d ${dir}/${newdir} ]] && mkdir "${dir}/${newdir}"
+    done
+
+    # Do some sorting
     if [[ -d ${dir} ]]; then
+        echo "Processing directory ${dir} ($(ls ${dir} | wc -l | xargs) files)" 
 
-        if ls ${dir}/*.XMP; then
-
-            for fn in ${dir}/*.XMP; do
-                cc=$(grep "photomechanic:ColorClass=" ${fn} | cut -d "=" -f 2 | tr -d \");
-
-                # проверяем, не педагог ли это (3 (оранжевый)) в Photomechanic.
-                # 4 — групповая
-                # Если так — то создаем, если надо папку и перемещаем туда XMP и фотку
-
-                if [[ 4 == ${cc}  ]]; then
-
-                    if [[ ! -d "../${currdir} @" ]]; then
-                        echo Need to create directory \"../${currdir} @\"
-                        mkdir "../${currdir} @"
-                    fi
-
-                    if [[ ! -d "../${currdir} @/${all}" ]]; then
-                        echo Need to create directory \"../${currdir} @/${classdir}/${all}\"
-                        mkdir "../${currdir} @/${classdir}/${all}";
-                    fi
-
-                    echo All ${fn%.*}.${ext} \& ${fn} --\> ${all}
-                    mv ${fn} "../${currdir} @/${classdir}/${all}/"
-                    mv ${fn%.*}.${ext} "../${currdir} @/${classdir}/${all}/"
-
-                elif [[ 3 == ${cc} ]]; then
-
-                    if [[ ! -d "../${currdir} @" ]]; then
-                        echo Need to create directory \"../${currdir} @\"
-                        mkdir "../${currdir} @"
-                    fi
-
-                    if [[ ! -d "../${currdir} @/${ped}" ]]; then
-                        echo Need to create directory \"../${currdir} @/${ped}\"
-                        mkdir "../${currdir} @/${ped}";
-                    fi
-
-                    echo Teacher ${fn%.*}.${ext} \& ${fn} --\> ${ped}
-                    mv ${fn} "../${currdir} @/${ped}/"
-                    mv ${fn%.*}.${ext} "../${currdir} @/${ped}/"
-
-                elif [[ 2 == ${cc} ]]; then
-
-                    if [[ ! -d "../${currdir} @" ]]; then
-                        echo Need to create directory \"../${currdir} @\"
-                        mkdir "../${currdir} @"
-                    fi
-
-                    classdir=$(echo ${fn} | cut -d "/" -f 1)
-
-                    if [[ ! -d "../${currdir} @/${classdir}" ]]; then
-                        echo Need to create directory \"../${currdir} @/${classdir}\"
-                        mkdir "../${currdir} @/${classdir}"
-                    fi
-
-                    echo Moving ${fn%.*}.${ext} \& ${fn} --\> \"../${currdir} @/${classdir}\"
-                    mv ${fn} "../${currdir} @/${classdir}/"
-                    mv ${fn%.*}.${ext} "../${currdir} @/${classdir}/"
-                fi
-            done
-        fi
+        for photo in "${dir}"/*.${ext}; do
+            dest=$(dirname ${photo})/"${StyleDirs[$(exiftool -PictureStyle ${photo} | awk '{print $4}')]}"
+            mv "${photo%.*}.JPG" "${dest}/"
+            mv "${photo}" "${dest}/"
+        done
     fi
 done
