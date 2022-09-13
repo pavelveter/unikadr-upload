@@ -25,7 +25,7 @@ for dir in *; do
         echo "Processing directory ${dir} ($(ls ${dir} | wc -l | xargs) files)" 
 
         for photo in "${dir}"/*.${ext}; do
-            dest=$(dirname ${photo})/"${StyleDirs[$(exiftool -PictureStyle ${photo} | awk '{print $4}')]}"
+            dest=$(dirname ${photo})/"${StyleDirs[$(exiftool -PictureStyle ${photo} | cut -c 35-)]}"
             mv "${photo%.*}.JPG" "${dest}/"
             mv "${photo}" "${dest}/"
         done
