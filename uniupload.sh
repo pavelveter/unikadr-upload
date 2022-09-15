@@ -143,6 +143,6 @@ if [[ -n ${errordirs} ]]; then
     ErrorExit "It's sad to report, but there were some errors while syncing the catalogs"
 fi
 
-say -v Samantha Renaming is complete. >/dev/null 2>&1 &
+say -v Samantha Uploading is complete. >/dev/null 2>&1 &
 
 echo -e "That's all folks. Scripted by github.com/pavelveter\n"
