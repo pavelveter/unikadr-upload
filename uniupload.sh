@@ -5,7 +5,7 @@ set -o nounset
 set -o pipefail
 
 # the name of the remote directory for the photographer
-readonly photographer=borisov-pavel-vasilevich
+readonly photographer=/uni-kadr/staff/b/borisov-pavel-vasilevich
 # select prompt view
 PS3="#? "
 
@@ -27,7 +27,7 @@ echo -e "\n\e[34mUnikadr --> Yandex.Disk\e[0m"
 
 # Check for the rclone and the Yandex.Disk config
 which rclone > /dev/null || ErrorExit "Can't find rclone. Install it from www.rclone.org."
-yad=$(rclone listremotes --long | grep yandex | cut -f 1 -d " ")
+yad="uk:"
 [[ -z ${yad} ]] && ErrorExit "Yandex.Disk is not configured. Please run 'rclone config' and set Yandex.Disk up."
 # Check for an internet
 ping -c 1 disk.yandex.ru > /dev/null || ErrorExit "Can't ping Yandex.Disk. Check internet connection."
@@ -119,7 +119,7 @@ for f in *; do
             if [[ -d ${d} ]]; then
                 echo -e "\n\e[33mSYNC:\e[0m ${d} \e[34m-->\e[0m ${yad}${photographer}/${school}/${f}-/$(echo ${d} | grep -o '[^/]*$')" | tee rclone.lock
 
-                rclone sync "${f}/${d}" "${yad}${photographer}/${school}/${f}-/$(echo ${d} | grep -o '[^/]*$')" --progress --transfers=20 \
+                rclone sync "${d}" "${yad}${photographer}/${school}/${f}-/$(echo ${d} | grep -o '[^/]*$')" --progress --transfers=20 \
                     && okdirs+="${f}-/$(echo ${d} | grep -o '[^/]*$')\n" \
                     || errordirs+="\${f}-/$(echo ${d} | grep -o '[^/]*$')\n";
             fi

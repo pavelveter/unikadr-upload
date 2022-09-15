@@ -22,7 +22,7 @@ for dir in *; do
 
     # Do some sorting
     if [[ -d ${dir} ]]; then
-        echo "Processing directory ${dir} ($(ls ${dir} | wc -l | xargs) files)" 
+        echo "Processing directory ${dir} ($(find ${dir} -type f -maxdepth 1 | wc -l | xargs) files)" 
 
         for photo in "${dir}"/*.${ext}; do
             dest=$(dirname ${photo})/"${StyleDirs[$(exiftool -PictureStyle ${photo} | cut -c 35-)]}"
