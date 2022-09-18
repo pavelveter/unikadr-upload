@@ -9,7 +9,7 @@ set -o pipefail
 readonly ext=CR2
 
 declare -A StyleDirs
-StyleDirs=( ["Standard"]="4_green" ["Monochrome"]="4_bw" ["Portrait"]="4_green_wood" )
+StyleDirs=( ["Standard"]="4_green" ["Monochrome"]="4_bw" ["User Def. 1"]="4_green_wood" )
 
 echo -e "\nUnikadr Sorter\n"
 which exiftool > /dev/null || (echo -e "Can't find exiftool. Install it from www.exiftool.org.\n"; exit 1)
